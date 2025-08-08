@@ -1,5 +1,5 @@
 {
-  "name": "llm_itinerary_generator",
+  "name": "llm_itinerary_generator_processor",
   "main": "main.py",
   "compatibility_flags": [
     "python_workers"
