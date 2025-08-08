@@ -1,0 +1,19 @@
+{
+  "name": "llm_itinerary_generator",
+  "main": "main.py",
+  "compatibility_flags": [
+    "python_workers"
+  ],
+  "compatibility_date": "2024-03-20",
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "itinerarykv",
+      "id": "aee80e2ef1a84d1ebc752e3bbc1071d3" 
+    }
+  ]
+}
