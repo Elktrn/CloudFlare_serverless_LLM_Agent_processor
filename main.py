@@ -1,9 +1,8 @@
-from workers import Response
+from workers import Response,Promise,fetch
 import json
 import datetime
 import asyncio
 import urllib.request
-from workers import fetch
 async def on_fetch(request, env):
     if request.method == "POST":
         payload = await request.json()
@@ -141,8 +140,8 @@ Expected Output:
                 }
                 
                 # Use the imported fetch function
-                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(open_payload))
-
+                response = await Promise.all([fetch(api_url, method="POST", headers=headers, body=json.dumps(open_payload))]);
+            
                 # if response.status != 200:
                 #     error_text = await response.text()
                 #     return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
