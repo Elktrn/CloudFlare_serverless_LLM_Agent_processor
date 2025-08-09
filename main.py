@@ -135,8 +135,8 @@ Expected Output:
                 open_payload = {
                     "model": "gpt-3.5-turbo",
                     "messages": [
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": "Hello, tell "}
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"{parsed_data["destination"]}\n{payload.iten}"}
                     ]
                 }
                 
@@ -146,17 +146,6 @@ Expected Output:
                 response_data = await response.json()
                 
                 itinerary = response_data["choices"][0]["message"]["content"]
-                # itinerary = [
-                #     {
-                #         "day": 1,
-                #         "theme": f"Historical ",
-                #         "activities": [
-                #             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
-                #             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
-                #             {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
-                #         ]
-                #     }
-                # ]
                 parsed_data["itinerary"] = itinerary
                 parsed_data["status"] = "completed"
                 parsed_data["completedAt"] = str(datetime.datetime.now())
