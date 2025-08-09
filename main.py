@@ -2,7 +2,6 @@ from workers import Response
 import json
 import datetime
 import asyncio
-from openai import AsyncOpenAI
 async def on_fetch(request, env):
     if request.method == "POST":
         payload = await request.json()
@@ -125,23 +124,32 @@ Expected Output:
 ]"""
                 input_prompt=f"""City: {parsed_data["destination"]}
 {str(payload.iten)}"""
-                # Mock LLM call for itinerary generation
-                openai = AsyncOpenAI(
-                api_key=env.OPENAI_API_KEY,
-                base_url=f"https://gateway.ai.cloudflare.com/v1/{env.CLOUDFLARE_ACCOUNT_ID}/mygate/openai")
-
-        # Make a request to the Chat Completions API
-                chat_completion = await openai.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": input_prompt}
-                    ],
-                    max_tokens=10000
+                
+                openai_payload = {
+                    "model": "gpt-4o-mini",
+                    "messages": [{"role": "system", "content": system_prompt},{"role": "user", "content": input_prompt}],
+                    "max_tokens": 50000
+                }
+                # Make a POST request to OpenAI's API
+                response = await fetch(
+                    "https://api.openai.com/v1/chat/completions",
+                    {
+                        "method": "POST",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": f"Bearer {env.OPENAI_API_KEY}"
+                        },
+                        "body": json.dumps(openai_payload)
+                    }
                 )
 
-                itinerary = chat_completion.choices[0].message.content
+                # Check if the response is OK
+                if response.status != 200:
+                    raise
 
+                # Parse and return the response
+                data = await response.json()
+                itinerary  = data["choices"][0]["message"]["content"]
 
                 # itinerary = [
                 #     {
