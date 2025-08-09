@@ -141,7 +141,7 @@ Expected Output:
                 }
                 
                 # Use the imported fetch function
-                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(payload))
+                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(open_payload))
 
                 if response.status != 200:
                     error_text = await response.text()
@@ -172,6 +172,6 @@ Expected Output:
         json_data = json.dumps(parsed_data)
         await env.itinerarykv.put(f"job_{payload.jobId}", json_data)
         print(f"Processed job_{payload.jobId}: {parsed_data['status']}")
-        return Response(json.dumps({"status": f"success {data}"}), status=200)
+        return Response(json.dumps({"status": f"success {itinerary}"}), status=200)
     else:
         return Response(json.dumps({"error": "Invalid request"}), status=400)
