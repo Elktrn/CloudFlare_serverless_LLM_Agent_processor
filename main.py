@@ -123,31 +123,34 @@ Expected Output:
   ]
 }
 ]"""
-                input_prompt=f"""City: {parsed_data["destination"]}
-{str(payload.iten)}"""
-                
-                openai_payload = {
+                open_payload = {
                     "model": "gpt-4o-mini",
-                    "messages": [{"role": "system", "content": system_prompt},{"role": "user", "content": input_prompt}],
+                    "messages": [{"role": "user", "content": "Hello, tell me a short joke!"}],
                     "max_tokens": 50000
                 }
-                request_init = {
-                "method": "POST",
-                "headers": {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {env.OPENAI_API_KEY}"},
-                "body": json.dumps(openai_payload)}
-                # Make a POST request to OpenAI's API
-                response = await env.fetch("https://api.openai.com/v1/chat/completions", request_init)
 
-                # Check if the response is OK
-                if response.status != 200:
-                    raise
+                # Convert payload to JSON string
+                payload_json = json.dumps(open_payload).encode('utf-8')
 
-                # Parse and return the response
-                data = await response.json()
-                itinerary  = data["choices"][0]["message"]["content"]
+                # Create the request
+                req = urllib.request.Request(
+                    "https://api.openai.com/v1/chat/completions",
+                    data=payload_json,
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {env.OPENAI_API_KEY}"
+                    },
+                    method="POST"
+                )
 
+                # Send the request and get the response
+                with urllib.request.urlopen(req) as response:
+                    if response.getcode() != 200:
+                       raise
+
+                    # Parse the JSON response
+                    data = json.loads(response.read().decode('utf-8'))
+                    itinerary = data["choices"][0]["message"]["content"]
                 # itinerary = [
                 #     {
                 #         "day": 1,
@@ -159,9 +162,9 @@ Expected Output:
                 #         ]
                 #     }
                 # ]
-                parsed_data["itinerary"] = itinerary
-                parsed_data["status"] = "completed"
-                parsed_data["completedAt"] = str(datetime.datetime.now())
+                    parsed_data["itinerary"] = itinerary
+                    parsed_data["status"] = "completed"
+                    parsed_data["completedAt"] = str(datetime.datetime.now())
         except Exception as e:
             parsed_data["status"] = "failed"
             parsed_data["error"] = str(e)
