@@ -126,17 +126,34 @@ Expected Output:
                 input_prompt=f"""City: {parsed_data["destination"]}
 {str(payload.iten)}"""
                 # Mock LLM call for itinerary generation
-                itinerary = [
-                    {
-                        "day": 1,
-                        "theme": f"Historical ",
-                        "activities": [
-                            {"time": "Morning", "description": "Visit museum", "location": "Museum"},
-                            {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
-                            {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
-                        ]
-                    }
-                ]
+                openai = AsyncOpenAI(
+                api_key=env.OPENAI_API_KEY,
+                base_url=f"https://gateway.ai.cloudflare.com/v1/{env.CLOUDFLARE_ACCOUNT_ID}/mygate/openai")
+
+        # Make a request to the Chat Completions API
+                chat_completion = await openai.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": input_prompt}
+                    ],
+                    max_tokens=10000
+                )
+
+                itinerary = chat_completion.choices[0].message.content
+
+
+                # itinerary = [
+                #     {
+                #         "day": 1,
+                #         "theme": f"Historical ",
+                #         "activities": [
+                #             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
+                #             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
+                #             {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
+                #         ]
+                #     }
+                # ]
                 parsed_data["itinerary"] = itinerary
                 parsed_data["status"] = "completed"
                 parsed_data["completedAt"] = str(datetime.datetime.now())
