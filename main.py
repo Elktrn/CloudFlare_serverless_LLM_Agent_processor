@@ -2,6 +2,7 @@ from workers import Response
 import json
 import datetime
 import asyncio
+import urllib.request
 async def on_fetch(request, env):
     if request.method == "POST":
         payload = await request.json()
