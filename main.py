@@ -130,18 +130,14 @@ Expected Output:
                     "messages": [{"role": "system", "content": system_prompt},{"role": "user", "content": input_prompt}],
                     "max_tokens": 50000
                 }
+                request_init = {
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {env.OPENAI_API_KEY}"},
+                "body": json.dumps(openai_payload)}
                 # Make a POST request to OpenAI's API
-                response = await fetch(
-                    "https://api.openai.com/v1/chat/completions",
-                    {
-                        "method": "POST",
-                        "headers": {
-                            "Content-Type": "application/json",
-                            "Authorization": f"Bearer {env.OPENAI_API_KEY}"
-                        },
-                        "body": json.dumps(openai_payload)
-                    }
-                )
+                response = await env.fetch("https://api.openai.com/v1/chat/completions", request_init)
 
                 # Check if the response is OK
                 if response.status != 200:
