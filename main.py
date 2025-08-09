@@ -143,9 +143,9 @@ Expected Output:
                 # Use the imported fetch function
                 response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(open_payload))
 
-                if response.status != 200:
-                    error_text = await response.text()
-                    return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
+                # if response.status != 200:
+                #     error_text = await response.text()
+                #     return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
 
                 response_data = await response.json()
                 
