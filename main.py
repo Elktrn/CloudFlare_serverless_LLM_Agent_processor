@@ -3,6 +3,7 @@ import json
 import datetime
 import asyncio
 import urllib.request
+from workers import fetch
 async def on_fetch(request, env):
     if request.method == "POST":
         payload = await request.json()
@@ -123,34 +124,32 @@ Expected Output:
   ]
 }
 ]"""
-                open_payload = {
-                    "model": "gpt-4o-mini",
-                    "messages": [{"role": "user", "content": "Hello, tell me a short joke!"}],
-                    "max_tokens": 50000
+
+                api_url = "https://api.openai.com/v1/chat/completions"
+
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {env.OPENAI_API_KEY}"
                 }
 
-                # Convert payload to JSON string
-                payload_json = json.dumps(open_payload).encode('utf-8')
+                open_payload = {
+                    "model": "gpt-3.5-turbo",
+                    "messages": [
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": "Hello, tell "}
+                    ]
+                }
+                
+                # Use the imported fetch function
+                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(payload))
 
-                # Create the request
-                req = urllib.request.Request(
-                    "https://api.openai.com/v1/chat/completions",
-                    data=payload_json,
-                    headers={
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {env.OPENAI_API_KEY}"
-                    },
-                    method="POST"
-                )
+                if response.status != 200:
+                    error_text = await response.text()
+                    return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
 
-                # Send the request and get the response
-                with urllib.request.urlopen(req) as response:
-                    if response.getcode() != 200:
-                       raise
-
-                    # Parse the JSON response
-                    data = json.loads(response.read().decode('utf-8'))
-                    itinerary = data["choices"][0]["message"]["content"]
+                response_data = await response.json()
+                
+                itinerary = response_data["choices"][0]["message"]["content"]
                 # itinerary = [
                 #     {
                 #         "day": 1,
@@ -162,9 +161,9 @@ Expected Output:
                 #         ]
                 #     }
                 # ]
-                    parsed_data["itinerary"] = itinerary
-                    parsed_data["status"] = "completed"
-                    parsed_data["completedAt"] = str(datetime.datetime.now())
+                parsed_data["itinerary"] = itinerary
+                parsed_data["status"] = "completed"
+                parsed_data["completedAt"] = str(datetime.datetime.now())
         except Exception as e:
             parsed_data["status"] = "failed"
             parsed_data["error"] = str(e)
