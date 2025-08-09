@@ -12,7 +12,7 @@ async def on_fetch(request, env):
                 itinerary = [
                     {
                         "day": 1,
-                        "theme": f"Historical {parsed_data['destination']}",
+                        "theme": f"Historical ",
                         "activities": [
                             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
                             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
@@ -31,7 +31,6 @@ async def on_fetch(request, env):
         json_data = json.dumps(parsed_data)
         await env.itinerarykv.put(f"job_{payload.jobId}", json_data)
         print(f"Processed job_{payload.jobId}: {parsed_data['status']}")
-        
-        return Response(json.dumps({"status": "success"}), status=200)
+        return Response(json.dumps({"status": f"success {payload.iten}"}), status=200)
     else:
         return Response(json.dumps({"error": "Invalid request"}), status=400)
