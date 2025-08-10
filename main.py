@@ -126,43 +126,43 @@ Expected Output:
 }
 ]"""
 
-                api_url = "https://api.openai.com/v1/chat/completions"
+                # api_url = "https://api.openai.com/v1/chat/completions"
 
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {env.OPENAI_API_KEY}"
-                }
+                # headers = {
+                #     "Content-Type": "application/json",
+                #     "Authorization": f"Bearer {env.OPENAI_API_KEY}"
+                # }
 
-                open_payload = {
-                    "model": "gpt-3.5-turbo",
-                    "messages": [
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": "Hello, tell "}
-                    ]
-                }
+                # openai_payload = {
+                #     "model": "gpt-3.5-turbo",
+                #     "messages": [
+                #         {"role": "system", "content": "You are a helpful assistant."},
+                #         {"role": "user", "content": "Hello, tell "}
+                #     ]
+                # }
                 
-                # Use the imported fetch function
-                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(open_payload))
+                # # Use the imported fetch function
+                # response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(openai_payload))
 
-                if response.status != 200:
-                    error_text = await response.text()
-                    return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
+                # if response.status != 200:
+                #     error_text = await response.text()
+                #     return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
 
-                response_data = await response.json()
+                # response_data = await response.json()
                 
-                itinerary = response_data["choices"][0]["message"]["content"]
+                # itinerary = response_data["choices"][0]["message"]["content"]
                 #if chatpgt not working use the following fabricated itinerary for testing:
-                # itinerary = [
-                #     {
-                #         "day": 1,
-                #         "theme": f"Historical ",
-                #         "activities": [
-                #             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
-                #             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
-                #             {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
-                #         ]
-                #     }
-                # ]
+                itinerary = [
+                    {
+                        "day": 1,
+                        "theme": f"Historical ",
+                        "activities": [
+                            {"time": "Morning", "description": "Visit museum", "location": "Museum"},
+                            {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
+                            {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
+                        ]
+                    }
+                ]
                 parsed_data["itinerary"] = itinerary
                 parsed_data["status"] = "completed"
                 parsed_data["completedAt"] = str(datetime.datetime.now())
