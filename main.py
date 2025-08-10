@@ -147,6 +147,7 @@ Expected Output:
                     error_text = await response.text()
                     parsed_data["status"] = "failed"
                     parsed_data["error"] = str(error_text)
+                    parsed_data["itinerary"] = payload.iten
                     await env.itinerarykv.put(f"job_{payload.jobId}", json.dumps(parsed_data))
                     return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
 
