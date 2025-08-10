@@ -6,11 +6,11 @@ import urllib.request
 from workers import fetch
 async def on_fetch(request, env):
     if request.method == "POST":
-        payload = await request.json()
-        jsond = await env.itinerarykv.get(f"job_{payload.jobId}")
-        parsed_data = json.loads(jsond)
         try:
-                system_prompt="""Task: Fill in the "FILL" placeholders in the provided itinerary JSON for the given city.
+            payload = await request.json()
+            jsond = await env.itinerarykv.get(f"job_{payload.jobId}")
+            parsed_data = json.loads(jsond)
+            system_prompt="""Task: Fill in the "FILL" placeholders in the provided itinerary JSON for the given city.
 
 Instructions:
 
@@ -125,50 +125,50 @@ Expected Output:
 }
 ]"""
 
-                api_url = "https://api.openai.com/v1/chat/completions"
+            api_url = "https://api.openai.com/v1/chat/completions"
 
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {env.OPENAI_API_KEY}"
-                }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {env.OPENAI_API_KEY}"
+            }
 
-                openai_payload = {
-                    "model": "gpt-3.5-turbo",
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"{parsed_data["destination"]}\n{payload.iten}"}
-                    ]
-                }
-                
-                # Use the imported fetch function
-                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(openai_payload))
+            openai_payload = {
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"{parsed_data["destination"]}\n{payload.iten}"}
+                ]
+            }
+            
+            # Use the imported fetch function
+            response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(openai_payload))
 
-                if response.status != 200:
-                    error_text = await response.text()
-                    parsed_data["status"] = "failed"
-                    parsed_data["error"] = str(error_text)
-                    parsed_data["itinerary"] = payload.iten
-                    await env.itinerarykv.put(f"job_{payload.jobId}", json.dumps(parsed_data))
-                    return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
+            if response.status != 200:
+                error_text = await response.text()
+                parsed_data["status"] = "failed"
+                parsed_data["error"] = str(error_text)
+                parsed_data["itinerary"] = payload.iten
+                await env.itinerarykv.put(f"job_{payload.jobId}", json.dumps(parsed_data))
+                return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
 
-                response_data = await response.json()
-                
-                itinerary = response_data["choices"][0]["message"]["content"]
-                #use the following commented code to fabricate an itinerary
-                # itinerary = [
-                #     {
-                #         "day": 1,
-                #         "theme": f"Historical ",
-                #         "activities": [
-                #             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
-                #             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
-                #             {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
-                #         ]
-                #     }
-                # ]
-                parsed_data["itinerary"] = itinerary
-                parsed_data["status"] = "completed"
-                parsed_data["completedAt"] = str(datetime.datetime.now())
+            response_data = await response.json()
+            
+            itinerary = response_data["choices"][0]["message"]["content"]
+            #use the following commented code to fabricate an itinerary
+            # itinerary = [
+            #     {
+            #         "day": 1,
+            #         "theme": f"Historical ",
+            #         "activities": [
+            #             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
+            #             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
+            #             {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
+            #         ]
+            #     }
+            # ]
+            parsed_data["itinerary"] = itinerary
+            parsed_data["status"] = "completed"
+            parsed_data["completedAt"] = str(datetime.datetime.now())
         except Exception as e:
             parsed_data["status"] = "failed"
             parsed_data["error"] = str(e)
