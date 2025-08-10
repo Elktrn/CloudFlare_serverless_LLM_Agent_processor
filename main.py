@@ -132,16 +132,16 @@ Expected Output:
                     "Authorization": f"Bearer {env.OPENAI_API_KEY}"
                 }
 
-                open_payload = {
+                openai_payload = {
                     "model": "gpt-3.5-turbo",
                     "messages": [
-                        {"role": "system", "content": "You are a helpful assistant."},
-                        {"role": "user", "content": "Hello, tell "}
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"{parsed_data["destination"]}\n{payload.iten}"}
                     ]
                 }
                 
                 # Use the imported fetch function
-                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(payload))
+                response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(openai_payload))
 
                 if response.status != 200:
                     error_text = await response.text()
