@@ -145,6 +145,8 @@ Expected Output:
 
                 if response.status != 200:
                     error_text = await response.text()
+                    parsed_data["status"] = "failed"
+                    parsed_data["error"] = str(error_text)
                     return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
 
                 response_data = await response.json()
