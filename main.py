@@ -7,6 +7,7 @@ from workers import fetch
 async def on_fetch(request, env):
     if request.method == "POST":
         payload = await request.json()
+        #First we want to fetch job json from the kv
         jsond = await env.itinerarykv.get(f"job_{payload.jobId}")
         parsed_data = json.loads(jsond)
         try:
@@ -135,17 +136,33 @@ Expected Output:
                 open_payload = {
                     "model": "gpt-3.5-turbo",
                     "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"{parsed_data["destination"]}\n{payload.iten}"}
+                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "user", "content": "Hello, tell "}
                     ]
                 }
                 
                 # Use the imported fetch function
                 response = await fetch(api_url, method="POST", headers=headers, body=json.dumps(open_payload))
 
+                if response.status != 200:
+                    error_text = await response.text()
+                    return Response(f"Error from OpenAI API: {response.status} - {error_text}", status=response.status)
+
                 response_data = await response.json()
                 
                 itinerary = response_data["choices"][0]["message"]["content"]
+                #if chatpgt not working use the following fabricated itinerary for testing:
+                # itinerary = [
+                #     {
+                #         "day": 1,
+                #         "theme": f"Historical ",
+                #         "activities": [
+                #             {"time": "Morning", "description": "Visit museum", "location": "Museum"},
+                #             {"time": "Afternoon", "description": "Explore historic district", "location": "District"},
+                #             {"time": "Evening", "description": "Dinner at local restaurant", "location": "Downtown"}
+                #         ]
+                #     }
+                # ]
                 parsed_data["itinerary"] = itinerary
                 parsed_data["status"] = "completed"
                 parsed_data["completedAt"] = str(datetime.datetime.now())
