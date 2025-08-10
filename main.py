@@ -150,6 +150,7 @@ Expected Output:
                 response_data = await response.json()
                 
                 itinerary = response_data["choices"][0]["message"]["content"]
+                #use the following commented code to fabricate an itinerary
                 # itinerary = [
                 #     {
                 #         "day": 1,
@@ -169,9 +170,8 @@ Expected Output:
             parsed_data["error"] = str(e)
 
         # Update KV with results
-        json_data = json.dumps(parsed_data)
-        await env.itinerarykv.put(f"job_{payload.jobId}", json_data)
-        print(f"Processed job_{payload.jobId}: {parsed_data['status']}")
-        return Response(json.dumps({"status": f"success {data}"}), status=200)
+        await env.itinerarykv.put(f"job_{payload.jobId}", json.dumps(parsed_data))
+        
+        return Response(json.dumps({"status": f"success "}), status=200)
     else:
         return Response(json.dumps({"error": "Invalid request"}), status=400)
