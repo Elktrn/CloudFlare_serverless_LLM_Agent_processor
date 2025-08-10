@@ -3,16 +3,16 @@ import json
 import datetime
 import asyncio
 import urllib.request
-from workers import fetch
+# from workers import fetch
 async def on_fetch(request, env):
     if request.method == "POST":
-        payload = await request.json()
-        #First we want to fetch job json from the kv
-        jsond = await env.itinerarykv.get(f"job_{payload.jobId}")
-        parsed_data = json.loads(jsond)
         try:
+          payload = await request.json()
+          #First we want to fetch job json from the kv
+          jsond = await env.itinerarykv.get(f"job_{payload.jobId}")
+          parsed_data = json.loads(jsond)
+        
                 system_prompt="""Task: Fill in the "FILL" placeholders in the provided itinerary JSON for the given city.
-
 Instructions:
 
     You will be given a city name, for example, "Paris."
